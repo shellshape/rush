@@ -1,0 +1,20 @@
+[package]
+name = "rush"
+version = "1.0.0"
+edition = "2021"
+authors = ["Ringo Hoffmann <contact@zekro.de>"]
+description = "A tiny HTTP benchmarking and performance testing CLI tool."
+readme = "README.md"
+license = "MIT"
+keywords = ["http", "benchmarking", "cli"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.71"
+chrono = "0.4.26"
+clap = { version = "4.3.10", features = ["derive"] }
+humantime = "2.1.0"
+rand = "0.8.5"
+rayon = "1.7.0"
+reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls", "blocking"] }
