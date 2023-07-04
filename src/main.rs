@@ -11,9 +11,10 @@ use rayon::{
 };
 use request::{Client, Response};
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{Read, Write},
     num::{NonZeroU32, NonZeroUsize},
+    os,
     path::Path,
     thread,
     time::Duration,
@@ -125,9 +126,15 @@ fn read_body_from_file(file_path: &str) -> Result<Vec<u8>> {
 
 fn write_to_csv(path: &str, res: &[Response]) -> Result<()> {
     let pth = Path::new(&path);
+
     let mut f = if pth.exists() {
         File::options().append(true).open(pth)
     } else {
+        if let Some(parent) = pth.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)?;
+            }
+        }
         File::create(pth)
     }?;
 
