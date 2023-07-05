@@ -13,7 +13,7 @@ use reqwest::StatusCode;
 use std::{
     collections::HashMap,
     fs::{self, File},
-    io::{Read, Write},
+    io::{self, Read},
     num::{NonZeroU32, NonZeroUsize},
     path::Path,
     thread,
@@ -66,6 +66,11 @@ struct Args {
     #[arg(short, long)]
     output: Option<String>,
 
+    /// Prints the results of each request to stdout CSV formatted;
+    /// bypasses `silent`, if set
+    #[arg(long)]
+    csv: bool,
+
     /// Do not print any output.
     #[arg(short, long)]
     silent: bool,
@@ -110,11 +115,14 @@ fn main() -> Result<()> {
 
     let mut res = res?;
 
-    if let Some(csv) = args.output {
-        write_to_csv(&csv, &res)?;
+    if let Some(path) = args.output {
+        let f = get_output_file(&path)?;
+        write_csv(&f, &res)?;
     }
 
-    if !args.silent {
+    if args.csv {
+        write_csv(io::stdout(), &res)?;
+    } else if !args.silent {
         res.sort();
         print_stats(&res);
     }
@@ -129,10 +137,10 @@ fn read_body_from_file(file_path: &str) -> Result<Vec<u8>> {
     Ok(buf)
 }
 
-fn write_to_csv(path: &str, res: &[Response]) -> Result<()> {
+fn get_output_file(path: &str) -> Result<File> {
     let pth = Path::new(&path);
 
-    let mut f = if pth.exists() {
+    let f = if pth.exists() {
         File::options().append(true).open(pth)
     } else {
         if let Some(parent) = pth.parent() {
@@ -143,8 +151,12 @@ fn write_to_csv(path: &str, res: &[Response]) -> Result<()> {
         File::create(pth)
     }?;
 
+    Ok(f)
+}
+
+fn write_csv(mut w: impl io::Write, res: &[Response]) -> Result<()> {
     for r in res {
-        writeln!(f, "{},{},{}", r.timestamp, r.status, r.took.as_nanos())?;
+        writeln!(w, "{},{},{}", r.timestamp, r.status, r.took.as_nanos())?;
     }
 
     Ok(())
