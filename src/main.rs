@@ -215,7 +215,7 @@ fn print_stats(res: &[Response]) {
 
 fn get_median(times: &[Duration]) -> Duration {
     if times.len() % 2 == 1 {
-        let middle = (times.len() + 1) / 2;
+        let middle = ((times.len() + 1) / 2) - 1;
         return times[middle];
     }
 
