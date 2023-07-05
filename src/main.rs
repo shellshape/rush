@@ -65,6 +65,10 @@ struct Args {
     /// exists
     #[arg(short, long)]
     output: Option<String>,
+
+    /// Do not print any output.
+    #[arg(short, long)]
+    silent: bool,
 }
 
 fn main() -> Result<()> {
@@ -72,7 +76,7 @@ fn main() -> Result<()> {
 
     let wait: Option<DurationRange> = args.wait.map(|v| v.parse()).transpose()?;
 
-    if args.parallel.get() > 1 && wait.as_ref().is_some_and(|v| v.is_flat()) {
+    if !args.silent && args.parallel.get() > 1 && wait.as_ref().is_some_and(|v| v.is_flat()) {
         println!(
             "warning: `wait` is set to a fixed duration and `parallel` is set to more than 1. \
             That means that all requests will wait the same time for each worker. To avoid this, \
@@ -110,9 +114,10 @@ fn main() -> Result<()> {
         write_to_csv(&csv, &res)?;
     }
 
-    res.sort();
-
-    print_stats(&res);
+    if !args.silent {
+        res.sort();
+        print_stats(&res);
+    }
 
     Ok(())
 }
