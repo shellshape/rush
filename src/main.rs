@@ -1,16 +1,17 @@
 mod duration;
 mod request;
 
-use crate::duration::DurationRange;
+use crate::duration::{format_duration, DurationRange};
 use anyhow::Result;
 use clap::Parser;
-use humantime::format_duration;
 use rayon::{
     prelude::{IntoParallelIterator, ParallelIterator},
     ThreadPoolBuilder,
 };
 use request::{Client, Response};
+use reqwest::StatusCode;
 use std::{
+    collections::HashMap,
     fs::{self, File},
     io::{Read, Write},
     num::{NonZeroU32, NonZeroUsize},
@@ -173,6 +174,7 @@ fn print_stats(res: &[Response]) {
         / n)
         .sqrt();
 
+    let median = get_median(&times);
     let pct_90 = get_nth_percentile(&times, 0.90);
     let pct_95 = get_nth_percentile(&times, 0.95);
     let pct_99 = get_nth_percentile(&times, 0.99);
@@ -180,26 +182,42 @@ fn print_stats(res: &[Response]) {
     println!(
         "Results of {n} probes:\n\
         \n\
-        Min:         {}\t({min_s})\n\
-        Max:         {}\t({max_s})\n\
-        First:       {}\t({max_s})\n\
-        Average:     {}\t({first_s})\n\
-        Std. Dev.:   {}\n\
-        90th %ile.:  {}\n\
-        95th %ile.:  {}\n\
-        99th %ile.:  {}\n\
-        Total:       {}\n\
+        Min:        {:>10.4}  ({min_s})\n\
+        Max:        {:>10.4}  ({max_s})\n\
+        First:      {:>10.4}  ({max_s})\n\
+        Average:    {:>10.4}  ({first_s})\n\
+        Median:     {:>10.4}\n\
+        Std. Dev.:  {:>10.4}\n\
+        90th %ile.: {:>10.4}\n\
+        95th %ile.: {:>10.4}\n\
+        99th %ile.: {:>10.4}\n\
+        Total:      {:>10.4}\n\
         ",
         format_duration(min_t),
         format_duration(max_t),
         format_duration(first_t),
         format_duration(Duration::from_nanos(avg as u64)),
+        format_duration(median),
         format_duration(Duration::from_nanos(sd as u64)),
         format_duration(pct_90),
         format_duration(pct_95),
         format_duration(pct_99),
         format_duration(sum),
     );
+
+    print_binned_statuscodes(res);
+}
+
+fn get_median(times: &[Duration]) -> Duration {
+    if times.len() % 2 == 1 {
+        let middle = (times.len() + 1) / 2;
+        return times[middle];
+    }
+
+    let middle_l = (times.len() / 2) - 1;
+    let middle_r = times.len() / 2;
+
+    (times[middle_l] + times[middle_r]) / 2
 }
 
 fn get_nth_percentile(times: &[Duration], percentile: f64) -> Duration {
@@ -222,4 +240,28 @@ fn get_nth_percentile(times: &[Duration], percentile: f64) -> Duration {
     let res = (el_a.as_nanos() as f64 * el_fract_a + el_b.as_nanos() as f64 * el_fract_b).round();
 
     Duration::from_nanos(res as u64)
+}
+
+fn print_binned_statuscodes(res: &[Response]) {
+    let all = res.len() as f32;
+
+    let res = res
+        .iter()
+        .fold(HashMap::<StatusCode, u64>::new(), |mut m, resp| {
+            m.entry(resp.status).and_modify(|v| *v += 1).or_insert(1);
+            m
+        });
+
+    let pad = res
+        .iter()
+        .max_by_key(|(_, v)| *v)
+        .unwrap()
+        .1
+        .to_string()
+        .len();
+
+    for (status_code, n) in res {
+        let prct = n as f32 / all * 100f32;
+        println!("{status_code}:  {n:>0$} ({prct:>5.2}%)", pad);
+    }
 }
