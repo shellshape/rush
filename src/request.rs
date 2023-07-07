@@ -7,23 +7,11 @@ use reqwest::{
 };
 use std::time::{Duration, Instant};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Response {
     pub status: StatusCode,
     pub took: Duration,
     pub timestamp: DateTime<Utc>,
-}
-
-impl Ord for Response {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.took.cmp(&other.took)
-    }
-}
-
-impl PartialOrd for Response {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.took.partial_cmp(&other.took)
-    }
 }
 
 pub struct Client {
@@ -53,6 +41,7 @@ impl Client {
     pub fn send(&self) -> Result<Response> {
         let req = self.create_request();
 
+        let started = Utc::now();
         let before = Instant::now();
         let res = self.client.execute(req)?;
         let after = Instant::now();
@@ -60,7 +49,7 @@ impl Client {
         Ok(Response {
             status: res.status(),
             took: after - before,
-            timestamp: Utc::now(),
+            timestamp: started,
         })
     }
 

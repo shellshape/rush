@@ -114,6 +114,7 @@ fn main() -> Result<()> {
     });
 
     let mut res = res?;
+    res.sort_by_key(|r| r.timestamp);
 
     if let Some(path) = args.output {
         let f = get_output_file(&path)?;
@@ -123,7 +124,7 @@ fn main() -> Result<()> {
     if args.csv {
         write_csv(io::stdout(), &res)?;
     } else if !args.silent {
-        res.sort();
+        res.sort_by_key(|r| r.took);
         print_stats(&res);
     }
 
@@ -170,8 +171,8 @@ fn print_stats(res: &[Response]) {
 
     let n = res.len() as f64;
 
-    let min = res.iter().min();
-    let max = res.iter().max();
+    let min = res.iter().min_by_key(|r| r.took);
+    let max = res.iter().max_by_key(|r| r.took);
 
     let min_t = min.unwrap().took;
     let min_s = min.unwrap().status;
