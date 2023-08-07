@@ -32,12 +32,12 @@ Options:
 
 You can either download the latest release builds form the [Releases page](https://github.com/zekroTJA/rush/releases) or you can install it using cargo install.
 ```
-cargo install --git https://github.com/zekrotja/rush
+cargo install --git https://github.com/shellshape/rush
 ```
 
 Alternatively, you can also use the provided Docker image.
 ```
-docker run --rm -it ghcr-io/zekrotja/rush \
+docker run --rm -it ghcr-io/shellshape/rush \
     https://example.com -X GET -n 100 -p 3 -w 10ms..20ms --csv \
         > results.csv
 ```
