@@ -40,4 +40,4 @@ jobs:
           context: ./
           push: true
           tags: |
-            ghcr.io/zekrotja/rush:${{ env.TAG }}
+            ghcr.io/shellshape/rush:${{ env.TAG }}
