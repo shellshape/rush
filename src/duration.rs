@@ -16,6 +16,10 @@ impl DurationRange {
     pub fn is_flat(&self) -> bool {
         self.0 == self.1
     }
+
+    pub fn start(&self) -> &Duration {
+        &self.0
+    }
 }
 
 impl FromStr for DurationRange {

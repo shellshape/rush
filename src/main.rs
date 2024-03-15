@@ -83,7 +83,10 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let wait: Option<DurationRange> = args.wait.map(|v| v.parse()).transpose()?;
+    let wait = match args.wait.map(|v| v.parse::<DurationRange>()).transpose()? {
+        Some(v) if v.start() == &Duration::from_millis(0) && v.is_flat() => None,
+        v => v,
+    };
 
     if !args.silent && args.parallel.get() > 1 && wait.as_ref().is_some_and(|v| v.is_flat()) {
         println!(
