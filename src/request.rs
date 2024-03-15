@@ -22,9 +22,16 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(url: &str, method: &str, body: Option<Vec<u8>>, headers: &[String]) -> Result<Self> {
+    pub fn new(
+        url: &str,
+        method: &str,
+        body: Option<Vec<u8>>,
+        headers: &[String],
+        accept_invalid_certs: bool,
+    ) -> Result<Self> {
         let client = reqwest::blocking::Client::builder()
             .default_headers(into_header_map(headers)?)
+            .danger_accept_invalid_certs(accept_invalid_certs)
             .build()?;
 
         let url = url.parse()?;
@@ -56,7 +63,7 @@ impl Client {
     fn create_request(&self) -> Request {
         let mut req = Request::new(self.method.clone(), self.url.clone());
         if let Some(body) = self.body.clone() {
-            *req.body_mut() = Some(body.try_into().unwrap());
+            *req.body_mut() = Some(body.into());
         }
 
         req

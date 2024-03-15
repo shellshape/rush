@@ -9,6 +9,7 @@ This tool has been primarily created to collect the data for [this project](http
 ```
 $ rush --help
 A tiny HTTP benchmarking and performance testing CLI tool.
+
 Usage: rush [OPTIONS] <URL>
 
 Arguments:
@@ -25,7 +26,9 @@ Options:
   -o, --output <OUTPUT>        Writes the results of each request formatted as CSV to the given output directory; appends the file if it already exists
       --csv                    Prints the results of each request to stdout CSV formatted; bypasses `silent`, if set
   -s, --silent                 Do not print any output
+  -i, --insecure               Disable TLS certificate invalidation
   -h, --help                   Print help
+  -V, --version                Print version
 ```
 
 ## Install

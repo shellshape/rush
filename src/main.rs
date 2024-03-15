@@ -71,9 +71,13 @@ struct Args {
     #[arg(long)]
     csv: bool,
 
-    /// Do not print any output.
+    /// Do not print any output
     #[arg(short, long)]
     silent: bool,
+
+    /// Disable TLS certificate invalidation
+    #[arg(short, long)]
+    insecure: bool,
 }
 
 fn main() -> Result<()> {
@@ -95,7 +99,7 @@ fn main() -> Result<()> {
         .or_else(|| args.body.map(|v| Ok(v.into_bytes())))
         .transpose()?;
 
-    let client = Client::new(&args.url, &args.method, body, &args.header)?;
+    let client = Client::new(&args.url, &args.method, body, &args.header, args.insecure)?;
 
     let pool = ThreadPoolBuilder::new()
         .num_threads(args.parallel.into())
