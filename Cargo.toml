@@ -1,6 +1,6 @@
 [package]
 name = "rush"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["Ringo Hoffmann <contact@zekro.de>"]
 description = "A tiny HTTP benchmarking and performance testing CLI tool."
