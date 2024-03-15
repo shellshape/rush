@@ -6,7 +6,7 @@ use anyhow::Result;
 use clap::Parser;
 use rayon::{
     prelude::{IntoParallelIterator, ParallelIterator},
-    ThreadPoolBuilder,
+    ThreadPool, ThreadPoolBuilder,
 };
 use request::{Client, Response};
 use reqwest::StatusCode;
@@ -53,6 +53,10 @@ struct Args {
     /// concurrently at a given time
     #[arg(short, long, default_value = "1")]
     parallel: NonZeroUsize,
+
+    /// Perform warmup requests which do not count to the benchmark result
+    #[arg(short, long)]
+    warmup: Option<NonZeroU32>,
 
     /// A duration awaited before a request is sent; you can pass
     /// a range (format: 'from..to', e.g. '10ms..20ms') from which
@@ -108,19 +112,12 @@ fn main() -> Result<()> {
         .num_threads(args.parallel.into())
         .build()?;
 
-    let res: Result<Vec<_>, _> = pool.install(|| {
-        (0..args.count.into())
-            .into_par_iter()
-            .map(|_| {
-                if let Some(wait) = &wait {
-                    thread::sleep(wait.get_random());
-                }
-                client.send()
-            })
-            .collect()
-    });
+    if let Some(warmup) = args.warmup {
+        perform_requests(&pool, &client, warmup.into(), wait.as_ref())?;
+    }
 
-    let mut res = res?;
+    let mut res = perform_requests(&pool, &client, args.count.into(), wait.as_ref())?;
+
     res.sort_by_key(|r| r.timestamp);
 
     if let Some(path) = args.output {
@@ -136,6 +133,25 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn perform_requests(
+    pool: &ThreadPool,
+    client: &Client,
+    n: u32,
+    wait: Option<&DurationRange>,
+) -> Result<Vec<Response>> {
+    pool.install(|| {
+        (0..n)
+            .into_par_iter()
+            .map(|_| {
+                if let Some(wait) = &wait {
+                    thread::sleep(wait.get_random());
+                }
+                client.send()
+            })
+            .collect()
+    })
 }
 
 fn read_body_from_file(file_path: &str) -> Result<Vec<u8>> {

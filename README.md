@@ -22,6 +22,7 @@ Options:
   -f, --body-file <BODY_FILE>  Reads the contents of the file and uses it as body for the request; overwrites `body`, if both set
   -c, --count <COUNT>          The amount of requests which will be sent [default: 1] [short aliases: n]
   -p, --parallel <PARALLEL>    The maximum amount of requests which will be sent concurrently at a given time [default: 1]
+  -w, --warmup <WARMUP>        Perform warmup requests which do not count to the benchmark result
   -w, --wait <WAIT>            A duration awaited before a request is sent; you can pass a range (format: 'from..to', e.g. '10ms..20ms') from which a random duration will be picked
   -o, --output <OUTPUT>        Writes the results of each request formatted as CSV to the given output directory; appends the file if it already exists
       --csv                    Prints the results of each request to stdout CSV formatted; bypasses `silent`, if set
