@@ -56,7 +56,7 @@ struct Args {
 
     /// Perform warmup requests which do not count to the benchmark result
     #[arg(short, long)]
-    warmup: Option<NonZeroU32>,
+    warmup: Option<u32>,
 
     /// A duration awaited before a request is sent; you can pass
     /// a range (format: 'from..to', e.g. '10ms..20ms') from which
@@ -113,7 +113,9 @@ fn main() -> Result<()> {
         .build()?;
 
     if let Some(warmup) = args.warmup {
-        perform_requests(&pool, &client, warmup.into(), wait.as_ref())?;
+        if warmup > 0 {
+            perform_requests(&pool, &client, warmup, wait.as_ref())?;
+        }
     }
 
     let mut res = perform_requests(&pool, &client, args.count.into(), wait.as_ref())?;
