@@ -12,7 +12,7 @@ impl DurationRange {
             return self.0;
         }
 
-        rand::thread_rng().gen_range(self.0..self.1)
+        rand::rng().random_range(self.0..self.1)
     }
 
     pub fn is_flat(&self) -> bool {
