@@ -57,7 +57,7 @@ struct Args {
     /// A duration awaited before a request is sent; you can pass
     /// a range (format: 'from..to', e.g. '10ms..20ms') from which
     /// a random duration will be picked
-    #[arg(short, long)]
+    #[arg(short = 'W', long)]
     wait: Option<String>,
 
     /// Writes the results of each request formatted as CSV to
