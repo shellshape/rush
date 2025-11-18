@@ -1,6 +1,8 @@
 use humantime::parse_duration;
 use rand::Rng;
-use std::{fmt, str::FromStr, time::Duration};
+use std::fmt;
+use std::str::FromStr;
+use std::time::Duration;
 
 pub struct DurationRange(Duration, Duration);
 
@@ -58,25 +60,6 @@ impl From<Duration> for ShortDurationFormatter {
         Self(value)
     }
 }
-
-// impl fmt::Display for ShortDurationFormatter {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         let prec = f.precision().unwrap_or(3);
-//         let nanos = self.0.as_nanos();
-//         match self.0.as_nanos() {
-//             0..=999 => write!(f, "{}ns", nanos),
-//             1_000..=999_999 => write!(f, "{:.1$}µs", nanos as f64 / 1_000f64, prec),
-//             1_000_000..=999_999_999 => write!(f, "{:.1$}ms", nanos as f64 / 1_000_000f64, prec),
-//             1_000_000_000..=59_999_999_999 => {
-//                 write!(f, "{:.1$}s", nanos as f64 / 1_000_000_000f64, prec)
-//             }
-//             60_000_000_000..=3_599_999_999_999_999 => {
-//                 write!(f, "{:.1$}m", nanos as f64 / 60_000_000_000f64, prec)
-//             }
-//             _ => write!(f, "{:.1$}h", nanos as f64 / 3_600_000_000_000_000f64, prec),
-//         }
-//     }
-// }
 
 impl fmt::Display for ShortDurationFormatter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

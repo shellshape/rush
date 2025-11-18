@@ -4,21 +4,17 @@ mod request;
 use crate::duration::{format_duration, DurationRange};
 use anyhow::Result;
 use clap::Parser;
-use rayon::{
-    prelude::{IntoParallelIterator, ParallelIterator},
-    ThreadPool, ThreadPoolBuilder,
-};
+use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+use rayon::{ThreadPool, ThreadPoolBuilder};
 use request::{Client, Response};
 use reqwest::StatusCode;
-use std::{
-    collections::HashMap,
-    fs::{self, File},
-    io::{self, Read},
-    num::{NonZeroU32, NonZeroUsize},
-    path::Path,
-    thread,
-    time::Duration,
-};
+use std::collections::HashMap;
+use std::fs::{self, File};
+use std::io::{self, Read};
+use std::num::{NonZeroU32, NonZeroUsize};
+use std::path::Path;
+use std::thread;
+use std::time::Duration;
 
 /// A tiny HTTP benchmarking and performance testing tool.
 #[derive(Parser, Debug)]

@@ -1,10 +1,8 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use reqwest::{
-    blocking::Request,
-    header::{HeaderMap, HeaderName},
-    Method, StatusCode, Url,
-};
+use reqwest::blocking::Request;
+use reqwest::header::{HeaderMap, HeaderName};
+use reqwest::{Method, StatusCode, Url};
 use std::time::{Duration, Instant};
 
 #[derive(Debug)]
