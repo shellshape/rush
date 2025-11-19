@@ -249,7 +249,7 @@ fn print_stats(res: &[Response]) {
 
 fn get_median(times: &[Duration]) -> Duration {
     if times.len() % 2 == 1 {
-        let middle = ((times.len() + 1) / 2) - 1;
+        let middle = times.len().div_ceil(2) - 1;
         return times[middle];
     }
 
@@ -301,6 +301,6 @@ fn print_binned_statuscodes(res: &[Response]) {
 
     for (status_code, n) in res {
         let prct = n as f32 / all * 100f32;
-        println!("{status_code}:  {n:>0$} ({prct:>5.2}%)", pad);
+        println!("{status_code}:  {n:>0pad$} ({prct:>5.2}%)");
     }
 }
